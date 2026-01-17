@@ -901,6 +901,34 @@ int fb_do_download(char *cmd_buffer, unsigned int rx_sz)
 	return 0;
 }
 
+int fb_do_upload(char *cmd_buffer, unsigned int rx_sz)
+{
+	char buf[FB_RESPONSE_BUFFER_SIZE];
+	char *response = (char *)(((unsigned long)buf + 8) & ~0x07);
+
+	if(download_size == 0)
+	{
+		sprintf(response, "FAILNo data waiting to be downloaded");
+		fastboot_send_status(response, strlen(response), FASTBOOT_TX_ASYNC);
+		return -1;
+	}
+
+	s_fb_on_diskdump = 1;
+	fastboot_tx_event_init();
+
+	sprintf(response, "DATA%08x", download_size);
+
+	fastboot_send_status(response, strlen(response), FASTBOOT_TX_SYNC);
+	fastboot_send_payload((void *)CFG_FASTBOOT_TRANSFER_BUFFER, download_size);
+
+	sprintf(response, "OKAY");
+	fastboot_send_status(response, strlen(response), FASTBOOT_TX_SYNC);
+
+	s_fb_on_diskdump = 0;
+
+	return 0;
+}
+
 static void start_ramdump(void *buffer)
 {
 	struct fastboot_ramdump_hdr *hdr = buffer;
@@ -1229,6 +1257,7 @@ int fb_do_diskdump(char *cmd_buffer, unsigned int rx_sz)
 struct cmd_fastboot cmd_list[] = {
 	{"reboot", fb_do_reboot},
 	{"flash:", fb_do_flash},
+	{"upload", fb_do_upload},
 	{"boot", fb_do_boot},
 	{"continue", fb_do_continue},
 	{"erase:", fb_do_erase},
