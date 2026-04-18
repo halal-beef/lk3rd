@@ -26,60 +26,7 @@
 #define S6E3HAB_CMD_HSA 2
 
 #define CONFIG_FB_I80_COMMAND_MODE
-//#define CONFIG_DISPLAY_RESOL_1080X2400
 
-#ifdef CONFIG_DISPLAY_RESOL_1080X2400
-#define S6E3HAB_HORIZONTAL 1080
-#define S6E3HAB_VERTICAL 2400
-
-struct exynos_panel_info s6e3hab_lcd_info = {
-    .mode = DECON_MIPI_COMMAND_MODE,
-    .vfp = S6E3HAB_CMD_VFP,
-    .vbp = S6E3HAB_CMD_VBP,
-    .hfp = S6E3HAB_CMD_HFP,
-    .hbp = S6E3HAB_CMD_HBP,
-    .vsa = S6E3HAB_CMD_VSA,
-    .hsa = S6E3HAB_CMD_HSA,
-    .xres = S6E3HAB_HORIZONTAL,
-    .yres = S6E3HAB_VERTICAL,
-
-    /* Maybe, width and height will be removed */
-    .width = 69,
-    .height = 154,
-
-    /* Mhz */
-    .hs_clk = 1100,
-    .esc_clk = 20,
-
-    /* pmsk */
-    .dphy_pms = {
-	0x3,
-	0xFE,
-	0x2,
-	0x0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	false,
-    },
-    .cmd_underrun_cnt = {5115},
-
-    /* Maybe, width and height will be removed */
-    .fps = 60,
-
-    .bpc = 8,
-    .dsc = {true, 1, 2, 540, 40},
-    .data_lane = 4,
-    .mres_mode = 0,
-};
-#else
 #define S6E3HAB_HORIZONTAL 1440
 #define S6E3HAB_VERTICAL 3200
 
@@ -119,7 +66,6 @@ struct exynos_panel_info s6e3hab_lcd_info = {
     .data_lane = 4,
     .mres_mode = 0,
 };
-#endif
 
 u32 s6e3hab_find_idx(u32 yres)
 {

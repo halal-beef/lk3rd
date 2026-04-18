@@ -141,27 +141,27 @@ static const unsigned char SEQ_GAMMA_LTPS_TRANS_UPDATE[] = {
 };
 
 static const unsigned char SEQ_SCALER_TABLE[] = {
-    /* 1.78x scaler on, 1080x2400 */
+    /* Scaler off, 1440x3200 */
     0xBA,
-    0x02,
+    0x01,
 };
 
 static unsigned char SEQ_CASET_TABLE[] = {
-    /* 1.78x scaler on, 1080x2400 */
+    /* Scaler off, 1440x3200 */
     0x2A,
     0x00,
     0x00,
-    0x04,
-    0x37,
+    0x05,
+    0x9F,
 };
 
 static unsigned char SEQ_PASET_TABLE[] = {
-    /* 1.78x scaler on, 1080x2400 */
+    /* Scaler off, 1440x3200 */
     0x2B,
     0x00,
     0x00,
-    0x09,
-    0x5F,
+    0x0C,
+    0x7F,
 };
 
 #endif /* __S6E3HAB_PARAM_H__ */
