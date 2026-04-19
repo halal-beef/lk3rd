@@ -472,9 +472,9 @@ void platform_init(void)
 	print_acpm_version();
 
 	display_rst_stat(rst_stat);
-	get_bootloader_cmdline();
-	get_bootloader_reserved_memory();
-	get_board_rev();
+	//get_bootloader_cmdline();
+	//get_bootloader_reserved_memory();
+	//get_board_rev();
 	read_dram_info();
 	pmic_init();
 	display_pmic_info();
@@ -519,7 +519,7 @@ void platform_init(void)
 		dfd_run_post_processing();
 
 	dfd_display_core_stat();
-	if (*(unsigned int *)DRAM_BASE == 0xabcdef) {
+	if (true) {
 		unsigned int dfd_en =
 			readl(EXYNOS9830_POWER_RESET_SEQUENCER_CONFIGURATION);
 		unsigned int rst_stat = readl(EXYNOS9830_POWER_RST_STAT);
