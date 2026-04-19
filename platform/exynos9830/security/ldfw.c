@@ -59,11 +59,7 @@ static u32 get_boot_device_info(void)
 {
 	u32 boot_device_info;
 
-	if (*(unsigned int *)DRAM_BASE != 0xabcdef)
-		/* Running on DRAM by TRACE32 */
-		boot_device_info = 0x0;
-	else
-		boot_device_info = find_second_boot();
+	boot_device_info = find_second_boot();
 
 	return boot_device_info;
 }
