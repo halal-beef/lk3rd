@@ -70,28 +70,28 @@ static u32 get_boot_device_info(void)
 
 int is_usb_boot(void)
 {
-	u32 order = 0;
+/*	u32 order = 0;
 	u32 boot_device_info = 0;
 
 	boot_device_info = get_boot_device_info();
-	if (!boot_device_info)
+	if (!boot_device_info)*/
 		/* boot from T32 */
-		return 0;
+		//return 0;
 
-	if ((boot_device_info & 0xFF000000) != 0xCB000000)
+	//if ((boot_device_info & 0xFF000000) != 0xCB000000)
 		/* abnormal boot */
-		while (1)
-			;
+	//	while (1)
+	//		;
 
-	order = boot_device_info & 0xF;
+	/*order = boot_device_info & 0xF;
 	switch ((boot_device_info >> (4 * order)) & 0xF) {
 	case BD_USB:
 		return 1;
 		break;
 	default:
 		break;
-	}
-	return 0;
+	}*/
+	return 1;
 }
 
 static int load_partition(u64 addr, u64 ch, u64 *size)

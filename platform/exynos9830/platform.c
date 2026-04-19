@@ -488,16 +488,11 @@ void platform_init(void)
 	fg_init_s2mu106();
 #endif
 
-	/*
-	 * check_charger_connect();
-	 */
-	if (get_boot_device() == BOOT_UFS) {
-		ufs_alloc_memory();
+	ufs_alloc_memory();
+	ufs_init(2);
+	ret = ufs_set_configuration_descriptor();
+	if (ret == 1)
 		ufs_init(2);
-		ret = ufs_set_configuration_descriptor();
-		if (ret == 1)
-			ufs_init(2);
-	}
 
 	/*
 	 * Initialize mmc for all channel.
@@ -520,26 +515,15 @@ void platform_init(void)
 
 	dfd_display_core_stat();
 	if (true) {
-		unsigned int dfd_en =
-			readl(EXYNOS9830_POWER_RESET_SEQUENCER_CONFIGURATION);
-		unsigned int rst_stat = readl(EXYNOS9830_POWER_RST_STAT);
-
 		/* read secure chip state */
 		if (read_secure_chip() == 0)
-			printf("Secure boot is disabled (non-secure chip)\n");
+			print_lcd_update(FONT_RED, FONT_BLACK, "Secure boot is disabled (non-secure chip)\n");
 		else if (read_secure_chip() == 1)
 			printf("Secure boot is enabled (test key)\n");
 		else if (read_secure_chip() == 2)
 			printf("Secure boot is enabled (secure chip)\n");
 		else
 			printf("Can not read secure chip state\n");
-
-		if ((rst_stat & (WARM_RESET | LITTLE_WDT_RESET)) &&
-		      (dfd_en & EXYNOS9830_EDPCSR_DUMP_EN)) {
-			/* in case of dumpgpr, do not load ldfw/sp */
-			printf("Dumpgpr mode. do not load ldfw/sp .\n");
-			goto by_dumpgpr_out;
-		}
 
 		if (!init_keystorage())
 			printf("keystorage: init done successfully.\n");

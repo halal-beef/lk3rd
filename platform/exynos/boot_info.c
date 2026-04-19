@@ -124,5 +124,5 @@ void set_first_boot_device_info(void)
 
 int get_boot_device(void)
 {
-	return BOOT_UFS;
+	return BOOT_USB;
 }
