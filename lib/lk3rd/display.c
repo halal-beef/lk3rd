@@ -23,6 +23,8 @@
 #include "include/lk3rd/kaslr_status.h"
 #include "../lib/font/exynos_font.h"
 
+#include <target/lcd_module.h>
+
 void draw_line_lcd(int color_fg, int color_bg)
 {
 	char *str = malloc(MAX_NUM_CHAR_PER_LINE + 1);
