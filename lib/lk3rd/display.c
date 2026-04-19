@@ -25,13 +25,7 @@
 
 #include <target/lcd_module.h>
 
-void draw_line_lcd(int color_fg, int color_bg)
-{
-	char *str = malloc(MAX_NUM_CHAR_PER_LINE + 1);
-	memset(str, '-', MAX_NUM_CHAR_PER_LINE);
-	str[MAX_NUM_CHAR_PER_LINE] = '\0';
-	print_lcd_update(color_fg, color_bg, str);
-}
+void decon_string_update(void);
 
 const char* add_padding(uint16_t left, uint16_t right, const char *str)
 {
@@ -143,87 +137,89 @@ void draw_menu(enum action current_action)
 	draw_circle(warning_x + warning_width / 2 - warning_thickness / 2, warning_y + warning_height * 27 / 36, warning_thickness / 2, FONT_BLACK); //						 .
 
 	update_y_pos(lcd_info->yres * .64);
-	print_lcd_update(FONT_RED, FONT_BLACK, "lk3rd FastBoot Mode", MAX_NUM_CHAR_PER_LINE);
+	print_lcd(FONT_RED, FONT_BLACK, "lk3rd FastBoot Mode", MAX_NUM_CHAR_PER_LINE);
 	update_y_pos(lcd_info->yres * .66);
 
-	print_lcd_update(FONT_WHITE, FONT_BLACK, "Product name: %s", TARGET);
-	print_lcd_update(FONT_WHITE, FONT_BLACK, "Bootloader version: 2.3 (%s)", version.buildid);
-	print_lcd_update(FONT_WHITE, FONT_BLACK, "SoC: %s", version.platform);
-	print_lcd_update(FONT_WHITE, FONT_BLACK, "Serial (ChipID): %s", fastboot_get_serialno_string());
+	print_lcd(FONT_WHITE, FONT_BLACK, "Product name: %s", TARGET);
+	print_lcd(FONT_WHITE, FONT_BLACK, "Bootloader version: 2.3 (%s)", version.buildid);
+	print_lcd(FONT_WHITE, FONT_BLACK, "SoC: %s", version.platform);
+	print_lcd(FONT_WHITE, FONT_BLACK, "Serial (ChipID): %s", fastboot_get_serialno_string());
 
 	orig_y_pos = get_y_pos();
-	print_lcd_update(FONT_WHITE, FONT_BLACK, "Secure boot: ");
+	print_lcd(FONT_WHITE, FONT_BLACK, "Secure boot: ");
 	update_y_pos(orig_y_pos);
 
 	switch(read_secure_chip())
 	{
 		case 0:
-			print_lcd_update(FONT_RED,   FONT_BLACK, empty_pad_string(strlen("Secure boot: "), "DISABLED"));
+			print_lcd(FONT_RED,   FONT_BLACK, empty_pad_string(strlen("Secure boot: "), "DISABLED"));
 			break;
 
 		case 1:
-			print_lcd_update(FONT_YELLOW, FONT_BLACK, empty_pad_string(strlen("Secure boot: "), "TEST KEY"));
+			print_lcd(FONT_YELLOW, FONT_BLACK, empty_pad_string(strlen("Secure boot: "), "TEST KEY"));
 			break;
 
 		case 2:
-			print_lcd_update(FONT_WHITE, FONT_BLACK, empty_pad_string(strlen("Secure boot: "), "PRODUCTION"));
+			print_lcd(FONT_WHITE, FONT_BLACK, empty_pad_string(strlen("Secure boot: "), "PRODUCTION"));
 			break;
 
 		default:
-			print_lcd_update(FONT_RED,   FONT_BLACK, empty_pad_string(strlen("Secure boot: "), "BROKEN!"));
+			print_lcd(FONT_RED,   FONT_BLACK, empty_pad_string(strlen("Secure boot: "), "BROKEN!"));
 			break;
 	}
 
 	orig_y_pos = get_y_pos();
-	print_lcd_update(FONT_WHITE, FONT_BLACK, "Lk3rd production build: ");
+	print_lcd(FONT_WHITE, FONT_BLACK, "Lk3rd production build: ");
 	update_y_pos(orig_y_pos);
 
-	print_lcd_update(FONT_RED,   FONT_BLACK, empty_pad_string(strlen("Lk3rd production build: "), "no"));
+	print_lcd(FONT_RED,   FONT_BLACK, empty_pad_string(strlen("Lk3rd production build: "), "no"));
 
-	print_lcd_update(FONT_WHITE, FONT_BLACK, "DRAM: %lldGB %s %s", dram_info.ram_size, dram_info.ram_manufacturer, dram_info.ram_type);
-	print_lcd_update(FONT_WHITE, FONT_BLACK, "UFS: %iGB %s", ufs_info.ufs_size, title_case(ufs_info.ufs_manufacturer));
+	print_lcd(FONT_WHITE, FONT_BLACK, "DRAM: %lldGB %s %s", dram_info.ram_size, dram_info.ram_manufacturer, dram_info.ram_type);
+	print_lcd(FONT_WHITE, FONT_BLACK, "UFS: %iGB %s", ufs_info.ufs_size, title_case(ufs_info.ufs_manufacturer));
 
 	orig_y_pos = get_y_pos();
-	print_lcd_update(FONT_WHITE, FONT_BLACK, "Device state: ");
+	print_lcd(FONT_WHITE, FONT_BLACK, "Device state: ");
 	update_y_pos(orig_y_pos);
 
-	print_lcd_update(FONT_RED,   FONT_BLACK, empty_pad_string(strlen("Device state: "), "unlocked"));
+	print_lcd(FONT_RED,   FONT_BLACK, empty_pad_string(strlen("Device state: "), "unlocked"));
 
 	orig_y_pos = get_y_pos();
-	print_lcd_update(FONT_WHITE, FONT_BLACK, "Mainline quirks: ");
+	print_lcd(FONT_WHITE, FONT_BLACK, "Mainline quirks: ");
 	update_y_pos(orig_y_pos);
 
 	if(lk3rd_get_mainline_quirks() == 1)
-		print_lcd_update(FONT_YELLOW, FONT_BLACK, empty_pad_string(strlen("Mainline quirks: "), "enabled ")); 
+		print_lcd(FONT_YELLOW, FONT_BLACK, empty_pad_string(strlen("Mainline quirks: "), "enabled ")); 
 	else
-		print_lcd_update(FONT_GREEN, FONT_BLACK, empty_pad_string(strlen("Mainline quirks: "), "disabled"));
+		print_lcd(FONT_GREEN, FONT_BLACK, empty_pad_string(strlen("Mainline quirks: "), "disabled"));
 
 	orig_y_pos = get_y_pos();
-	print_lcd_update(FONT_WHITE, FONT_BLACK, "KASLR status: ");
+	print_lcd(FONT_WHITE, FONT_BLACK, "KASLR status: ");
 	update_y_pos(orig_y_pos);
 
 	if(lk3rd_get_kaslr_status() == 1)
-		print_lcd_update(FONT_GREEN, FONT_BLACK, empty_pad_string(strlen("KASLR status: "), "enabled "));
+		print_lcd(FONT_GREEN, FONT_BLACK, empty_pad_string(strlen("KASLR status: "), "enabled "));
 	else
-		print_lcd_update(FONT_RED, FONT_BLACK, empty_pad_string(strlen("KASLR status: "), "disabled"));
+		print_lcd(FONT_RED, FONT_BLACK, empty_pad_string(strlen("KASLR status: "), "disabled"));
 
 	orig_y_pos = get_y_pos();
-	print_lcd_update(FONT_WHITE, FONT_BLACK, "Enter reason: ");
+	print_lcd(FONT_WHITE, FONT_BLACK, "Enter reason: ");
 	update_y_pos(orig_y_pos);
 
 	if(strcmp(enter_reason, "boot failure!") == 0)
-		print_lcd_update(FONT_RED,   FONT_BLACK, "%s", empty_pad_string(strlen("Enter reason: "), enter_reason));
+		print_lcd(FONT_RED,   FONT_BLACK, "%s", empty_pad_string(strlen("Enter reason: "), enter_reason));
 	else
-		print_lcd_update(FONT_WHITE, FONT_BLACK, "%s", empty_pad_string(strlen("Enter reason: "), enter_reason));
+		print_lcd(FONT_WHITE, FONT_BLACK, "%s", empty_pad_string(strlen("Enter reason: "), enter_reason));
 
 	orig_y_pos = get_y_pos();
-	print_lcd_update(FONT_WHITE, FONT_BLACK, "UART: ");
+	print_lcd(FONT_WHITE, FONT_BLACK, "UART: ");
 	update_y_pos(orig_y_pos);
 
 #ifdef PRINT_DEBUG
-	print_lcd_update(FONT_RED,   FONT_BLACK, empty_pad_string(strlen("UART: "), "enabled"));
+	print_lcd(FONT_RED,   FONT_BLACK, empty_pad_string(strlen("UART: "), "enabled"));
 #else
-	print_lcd_update(FONT_WHITE, FONT_BLACK, empty_pad_string(strlen("UART: "), "disabled"));
+	print_lcd(FONT_WHITE, FONT_BLACK, empty_pad_string(strlen("UART: "), "disabled"));
 #endif
-	print_lcd_update(FONT_BLACK, FONT_BLACK, ""); // Padding for any device messages
+	print_lcd(FONT_BLACK, FONT_BLACK, ""); // Padding for any device messages
+
+	decon_string_update();
 }
