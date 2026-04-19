@@ -32,9 +32,11 @@
 #include <platform/mmu/cache.h>
 
 #include <target/dpu_config.h>
+#include <target/lcd_module.h>
 
 #define PRINT_BUF_SIZE			384
 #define TOP_MARGIN			40
+#define MAX_NUM_CHAR_PER_LINE		(LCD_WIDTH / (FONT_X + 1))
 #define ALPHANUMERIC_OFFSET		0
 #define LENGTH_OF_A_CHAR_ARRAY		((FONT_Y) * 2)
 #define FONT_PTR_BIT			(((FONT_X) / 2) - 1)
@@ -43,8 +45,6 @@
 #endif
 
 static u32 y_pos = 0;
-// Stupid hack
-static u32 MAX_NUM_CHAR_PER_LINE = 0;
 extern u32 win_fb0;
 extern void decon_string_update(void);
 
@@ -258,7 +258,6 @@ static void initialize_font_fb(void)
 {
 	struct exynos_panel_info *lcd_info = common_get_lcd_info();
 	memset((void *)CONFIG_DISPLAY_FONT_BASE_ADDRESS, 0, lcd_info->xres * lcd_info->yres * 4);
-	MAX_NUM_CHAR_PER_LINE = (lcd_info->xres / (FONT_X + 1))
 	clean_invalidate_dcache_all();
 }
 
