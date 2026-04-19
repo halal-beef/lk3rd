@@ -404,7 +404,7 @@ void platform_early_init(void)
 	display_panel_init();
 	initialize_fbs();
 #endif
-	set_first_boot_device_info();
+	//set_first_boot_device_info();
 
 	uart_console_init();
 	printf("lk3rd built on %s, at %s\n", __DATE__, __TIME__);
@@ -488,16 +488,11 @@ void platform_init(void)
 	fg_init_s2mu106();
 #endif
 
-	/*
-	 * check_charger_connect();
-	 */
-	if (get_boot_device() == BOOT_UFS) {
-		ufs_alloc_memory();
+	ufs_alloc_memory();
+	ufs_init(2);
+	ret = ufs_set_configuration_descriptor();
+	if (ret == 1)
 		ufs_init(2);
-		ret = ufs_set_configuration_descriptor();
-		if (ret == 1)
-			ufs_init(2);
-	}
 
 	/*
 	 * Initialize mmc for all channel.
