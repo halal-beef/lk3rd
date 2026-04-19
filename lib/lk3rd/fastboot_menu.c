@@ -28,6 +28,7 @@
 #include <dev/pmic_s2mps_19_22.h>
 #endif
 
+bool in_fastboot = false;
 bool block_keys = false;
 enum action current_action = ACTION_START;
 
@@ -131,6 +132,7 @@ int fastboot_menu_entry(void *arg)
 	setup_keys(bank_power, BANK_GPA2);
 	clear_screen(FONT_BLACK);
 	draw_menu(current_action);
+	in_fastboot = true;
 
 	while (true)
 	{

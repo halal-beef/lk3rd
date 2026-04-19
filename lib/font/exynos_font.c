@@ -34,6 +34,8 @@
 #include <target/dpu_config.h>
 #include <target/lcd_module.h>
 
+#include <lk3rd/fastboot_menu.h>
+
 #define PRINT_BUF_SIZE			384
 #define TOP_MARGIN			40
 #define MAX_NUM_CHAR_PER_LINE		(LCD_WIDTH / (FONT_X + 1))
@@ -47,6 +49,11 @@
 static u32 y_pos = 0;
 extern u32 win_fb0;
 extern void decon_string_update(void);
+
+extern enum action current_action;
+extern bool in_fastboot;
+
+void draw_menu(enum action current_action);
 
 void draw_pixel(uint32_t x, uint32_t y, uint32_t color)
 {
@@ -282,6 +289,9 @@ static int _fill_fb_string(u32 *fb_buf, u32 x_pos, u8 *str,
 		y_pos = 0;
 		fb_buf = (u32 *)CONFIG_DISPLAY_FONT_BASE_ADDRESS;
 		initialize_font_fb();
+
+		if (in_fastboot)
+			draw_menu(current_action);
 	}
 
 	for (i = 0; i < cnt; i++)
