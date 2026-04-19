@@ -35,6 +35,9 @@ MKBOOTIMG_ARGS := \
 MODULE_SRCS += \
 	$(LOCAL_DIR)/target.c \
 	$(LOCAL_DIR)/dpu_io/dpu_gpio.S \
-	$(LOCAL_DIR)/dpu_io/dpu_io_ctrl.c
+	$(LOCAL_DIR)/dpu_io/dpu_io_ctrl.c \
+	$(LOCAL_DIR)/dpu_panels/s6e3hab_lcd_ctrl.c \
+	$(LOCAL_DIR)/dpu_panels/s6e3hab_mipi_lcd.c \
+	$(LOCAL_DIR)/dpu_panels/lcd_module.c
 
 include make/module.mk
