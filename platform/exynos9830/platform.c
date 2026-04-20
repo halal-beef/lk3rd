@@ -515,7 +515,7 @@ void platform_init(void)
 	if (rst_stat & (WARM_RESET | LITTLE_WDT_RESET))
 		dfd_run_post_processing();
 
-	dfd_display_core_stat();
+	//dfd_display_core_stat();
 	if (true) {
 		unsigned int dfd_en =
 			readl(EXYNOS9830_POWER_RESET_SEQUENCER_CONFIGURATION);
@@ -588,4 +588,9 @@ by_dumpgpr_out:
 	chg_init_max77705();
 
 	sanitise_persistent_storage();
+
+	if(get_boot_device() == BD_USB)
+	{
+		writel(REBOOT_MODE_LK3RD_USB, EXYNOS9830_POWER_SYSIP_DAT0);
+	}
 }
