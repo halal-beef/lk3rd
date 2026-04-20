@@ -375,8 +375,8 @@ void display_panel_init(void);
 
 static void initialize_fbs(void)
 {
-	memset((void *)CONFIG_DISPLAY_LOGO_BASE_ADDRESS, 0xFF, LCD_WIDTH * LCD_HEIGHT * 4);
-	memset((void *)CONFIG_DISPLAY_FONT_BASE_ADDRESS, 0xFF, LCD_WIDTH * LCD_HEIGHT * 4);
+	memset((void *)CONFIG_DISPLAY_LOGO_BASE_ADDRESS, 0, LCD_WIDTH * LCD_HEIGHT * 4);
+	memset((void *)CONFIG_DISPLAY_FONT_BASE_ADDRESS, 0, LCD_WIDTH * LCD_HEIGHT * 4);
 }
 #endif
 
@@ -404,7 +404,7 @@ void platform_early_init(void)
 	display_panel_init();
 	initialize_fbs();
 #endif
-	//set_first_boot_device_info();
+	set_first_boot_device_info();
 
 	uart_console_init();
 	printf("lk3rd built on %s, at %s\n", __DATE__, __TIME__);
