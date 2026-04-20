@@ -72,6 +72,14 @@ static void exynos_boot_task(const struct app_descriptor *app, void *args)
 		return;
 	}
 
+	if(readl(EXYNOS9830_POWER_SYSIP_DAT0) == REBOOT_MODE_LK3RD_USB)
+	{
+		writel(0, EXYNOS9830_POWER_SYSIP_DAT0); // Clear reboot reason
+		enter_reason = (char *)"Emergency USB Boot";
+		start_usb_gadget();
+		return;
+	}
+
 	if(readl(EXYNOS9830_POWER_SYSIP_DAT0) == REBOOT_MODE_LK3RD)
 	{
 		writel(0, EXYNOS9830_POWER_SYSIP_DAT0); // Clear reboot reason
