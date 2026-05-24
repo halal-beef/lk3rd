@@ -103,6 +103,8 @@ volatile bootloader_reserved_region bootloader_reserved_regions[] = {
 volatile int bootloader_reserved_region_count = sizeof(bootloader_reserved_regions) /
 										sizeof(bootloader_reserved_regions[0]);
 
+void do_swp_lock(void);
+
 #ifdef CONFIG_GET_B_REV_FROM_ADC
 int get_board_rev_adc(int *sh)
 {

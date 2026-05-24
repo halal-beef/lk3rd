@@ -306,7 +306,7 @@ bool partition_is_blocked(const char* partition)
 {
 	for (int i = 0; i < blocked_count; i++)
 		if (stricmp(partition, blocked_partitions[i]) == 0)
-			return true; // Partition is blocked
+			return false; // Partition is blocked
 
 	return false; // Partition is not blocked
 }

@@ -28,6 +28,8 @@
 #include <dev/pmic_s2mps_19_22.h>
 #endif
 
+void sw_lock(u32 lun, u32 set);
+
 bool device_inactive = false;
 bool brightness_lowered = false;
 bool block_keys = false;
@@ -162,6 +164,12 @@ int fastboot_menu_entry(void *arg)
 	draw_menu(current_action);
 
 	in_fastboot_menu = true;
+
+	//sw_lock(0, 0);
+	sw_lock(1, 0);
+	//sw_lock(2, 0);
+	//sw_lock(3, 0);
+	//sw_lock(4, 0);
 
 	while (true)
 	{
