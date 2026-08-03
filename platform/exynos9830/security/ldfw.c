@@ -156,7 +156,7 @@ int init_keystorage(void)
 
 	if (is_usb_boot())
 		/* boot from iROM USB booting */
-		return 1;
+		// return 1;
 
 	if (load_partition(addr, KEYSTORAGE_PART, &size)) {
 		LDFW_ERR("keystorage: can not read keystorage from the storage\n");
@@ -172,7 +172,7 @@ int init_keystorage(void)
 		return -1;
 	}
 
-	ret = load_keystorage(addr, size);
+	ret = load_keystorage(addr, 0x2000);
 
 	if (ret == -1)
 		LDFW_INFO("keystorage: It is dump_gpr state. It does not load keystorage.\n");
@@ -202,7 +202,7 @@ int init_ssp(void)
 	if (!size)
 		LDFW_ERR("ssp: partition size is invalid\n");
 
-	ret = load_ssp(addr, size);
+	ret = load_ssp(addr, 0x80000);
 	if (ret == 0)
 		LDFW_INFO("ssp: It is successfully loaded.\n");
 	else
@@ -251,6 +251,8 @@ int init_ldfws(void)
 		}
 	}
 
+	size += 0x310; // Signer info + signature
+
 	LDFW_INFO("ldfw: init ldfw(s). whole ldfws size 0x%llx\n", size);
 	ret = init_ldfw(addr, size);
 
@@ -275,11 +277,12 @@ int init_sp(void)
 {
 	s64 ret = 0;
 	u64 addr = EXYNOS9830_LDFW_NWD_ADDR;
-	u64 size = EXYNOS9830_SP_PARTITION_SIZE; /* default size 1MB */
+	// +0.5MiB for sig and signerinfo
+	u64 size = EXYNOS9830_SP_PARTITION_SIZE + (0.5 * 1024 * 1024); /* default size 1MB */
 
 	if (is_usb_boot()) {
 		/* boot from iROM USB booting */
-		ret =  load_image_by_usb(SP_DN_BY_USB, addr, size);
+		ret = load_image_by_usb(SP_DN_BY_USB, addr, size + (0.5 * 1024 * 1024));
 		if (ret) {
 			LDFW_INFO("spayload: read Spayload from USB with error # 0x%llx\n", ret);
 			return ret;
@@ -294,7 +297,7 @@ int init_sp(void)
 		return -1;
 	}
 
-	ret = (s64)load_sp(addr, size);
+	ret = (s64)load_sp(addr, EXYNOS9830_SP_PARTITION_SIZE + 0x310); // 1 MiB + SignerInfo + Sig
 	if (ret == -1)
 		LDFW_INFO("spayload: It is dump_gpr state. It does not load spayload.\n");
 	else if (ret == 0)

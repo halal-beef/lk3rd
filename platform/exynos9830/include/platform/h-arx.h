@@ -23,12 +23,12 @@
 #include <lib/font_display.h>
 
 /* Base address */
-#define EXYNOS_HARX_BASE_ADDR			(0xC1000000)
-#define EXYNOS_HARX_PLUGIN_BASE_ADDR		(0xC0400000)
+#define EXYNOS_HARX_BASE_ADDR			(0xC0000000)
+#define EXYNOS_HARX_PLUGIN_BASE_ADDR		(0xC1400000)
 
 /* Partition name */
 #define EXYNOS_HARX_PART_NAME			"harx"
-#define EXYNOS_HARX_PLUGIN_PART_NAME		"harx_rkp"
+#define EXYNOS_HARX_PLUGIN_PART_NAME		"uh"
 
 /* HVC_CMD_GET_HARX_INFO */
 #define HARX_INFO_MAJOR_VERSION			(1)
