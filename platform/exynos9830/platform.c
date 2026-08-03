@@ -463,6 +463,8 @@ void sanitise_persistent_storage(void)
 
 }
 
+void reset_screen(void);
+
 void platform_init(void)
 {
 	u32 ret = 0;
@@ -515,12 +517,14 @@ void platform_init(void)
 
 	ret = display_drv_init();
 
+	writel(0x1281, 0x19050070);
 	//dss_fdt_init();
 	dfd_get_dbgc_version();
 	if (rst_stat & (WARM_RESET | LITTLE_WDT_RESET))
 		dfd_run_post_processing();
 
 	//dfd_display_core_stat();
+	reset_screen();
 	if (true) {
 		unsigned int dfd_en =
 			readl(EXYNOS9830_POWER_RESET_SEQUENCER_CONFIGURATION);
@@ -581,6 +585,7 @@ void platform_init(void)
 			}
 		}
 
+		writel(0x1281, 0x19050070);
 by_dumpgpr_out:
 		print_el3_monitor_version();
 	}
@@ -596,6 +601,6 @@ by_dumpgpr_out:
 
 	if(get_boot_device() == BD_USB)
 	{
-		writel(REBOOT_MODE_LK3RD_USB, EXYNOS9830_POWER_SYSIP_DAT0);
+		//writel(REBOOT_MODE_LK3RD_USB, EXYNOS9830_POWER_SYSIP_DAT0);
 	}
 }

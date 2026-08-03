@@ -2442,6 +2442,10 @@ status_t ufs_init(int mode)
 
 		/* SCSI device enumeration */
 		printf("UFS: %s: Enumerating SCSI devices\n", __func__);
+
+		// Dont ask me why, but for whatever reason the number of lun gets messed up.
+		ufs_number_of_lus = 8;
+
 		scsi_scan(ufs_dev[i], 0, ufs_number_of_lus, scsi_exec, NULL, 128, &ufs_lu_list);
 		if (r)
 			goto out;

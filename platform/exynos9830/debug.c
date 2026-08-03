@@ -30,6 +30,12 @@ static u32 text_color = 0xFFFFFF; // Default white color.
 /* Clears the framebuffer by filling it with a specified color */
 void clear_screen(uint32_t color);
 
+void reset_screen(void)
+{
+	clear_screen(0);
+	cursor_y = 0;
+}
+
 // Helper function to draw a character.
 void putc_fb(char c)
 {

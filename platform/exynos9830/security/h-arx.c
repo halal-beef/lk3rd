@@ -26,8 +26,25 @@
 #include <platform/ldfw.h>
 #include <platform/exynos9830.h>
 
-
 bool is_harx_initialized;
+
+#define UH_MAGIC "GREENTEA"
+#define UHUH_MAGIC "PUERHTEA"
+#define UH_MAGIC_SIZE	8
+#define UH_NAME_SIZE	16
+#define UH_PAGE_SIZE	2048
+#define UH_HEADER_SIZE 2048
+
+struct uh_img_hdr {
+	unsigned char magic[UH_MAGIC_SIZE];
+	unsigned int uh_size;  /* size in bytes */
+	unsigned int uh_addr;  /* physical load addr */
+	unsigned int page_size;
+	unsigned int header_version;
+	unsigned char name[UH_NAME_SIZE];
+	unsigned int id[8];
+	unsigned int header_size;
+};
 
 static int load_el2_module(const char *part_name,
 			   u64 addr,
@@ -64,10 +81,10 @@ int load_and_init_harx(void)
 	u64 size = 0;
 	u64 ret = 0;
 
-	if (*(unsigned int *)DRAM_BASE != 0xabcdef) {
+	/*if (*(unsigned int *)DRAM_BASE != 0xabcdef) {
 		printf("[H-Arx] This boot is done by TRACE32\n");
 		return -1;
-	}
+	}*/
 
 	if (is_usb_boot() == 1) {
 		harx_print_with_lcd("[H-Arx] Do not load H-Arx for USB_BOOT case\n");
@@ -86,7 +103,7 @@ int load_and_init_harx(void)
 	/* Initialize & Verify H-Arx */
 	ret = exynos_smc(SMC_CMD_HARX_INITIALIZATION,
 			 EXYNOS_HARX_BASE_ADDR,
-			 size,
+			 (2 * 1024 * 1024),
 			 0);
 	if (ret) {
 		printf("[H-Arx] ERROR: Fail to initialize H-Arx [ret = %llx]\n",
@@ -119,10 +136,16 @@ int load_and_init_harx_plugin(const char *name, u64 plugin_addr)
 
 	harx_print_with_lcd("[H-Arx Plug-in] %s plug-in loading done", name);
 
+	struct uh_img_hdr *phdr = (struct uh_img_hdr *)plugin_addr;
+
+	printf("uh size : %x\n", phdr->uh_size);
+	printf("uh header size : %x\n", phdr->header_size);
+
+	// Sig + Signer info
 	/* Verify & Register plug-in */
 	ret = exynos_hvc(HVC_CMD_REGISTER_HARX_PLUGIN,
 			 plugin_addr,
-			 0, 0, 0);
+			 (phdr->uh_size + phdr->header_size) + 0x310, plugin_addr + phdr->header_size, 0);
 	if (ret) {
 		printf("[H-Arx Plug-in] This binary(%s) is not H-Arx plug-in "
 			"[ret = %llx]\n",
