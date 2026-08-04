@@ -91,6 +91,8 @@ void draw_menu(enum action current_action)
 {
 	struct exynos_panel_info *lcd_info = common_get_lcd_info();
 
+	writel(0x1281, 0x19050070);
+
 	u32 orig_y_pos = 0;
 
 	int start_offset = lcd_info->xres / 12.1;
@@ -220,6 +222,4 @@ void draw_menu(enum action current_action)
 	print_lcd(FONT_WHITE, FONT_BLACK, empty_pad_string(strlen("UART: "), "disabled"));
 #endif
 	print_lcd(FONT_BLACK, FONT_BLACK, ""); // Padding for any device messages
-
-	decon_string_update();
 }

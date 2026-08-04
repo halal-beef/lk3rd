@@ -599,8 +599,9 @@ by_dumpgpr_out:
 
 	sanitise_persistent_storage();
 
-	if(get_boot_device() == BD_USB)
+	if(get_boot_device() == BOOT_USB)
 	{
-		//writel(REBOOT_MODE_LK3RD_USB, EXYNOS9830_POWER_SYSIP_DAT0);
+		writel(REBOOT_MODE_LK3RD_USB, EXYNOS9830_POWER_SYSIP_DAT0);
+		writel(0x1281, 0x19050070);
 	}
 }

@@ -732,6 +732,9 @@ int cmd_boot(int argc, const cmd_args *argv)
 	}
 
 	printf("DECON0: HW_SW_TRIG Restore\n");
+
+	thread_sleep(100);
+
 	writel(0x3070, 0x19050070);
 
 	/* before jumping to kernel. disble arch_timer */
@@ -887,6 +890,9 @@ int boot_fb_boot(unsigned long buf_addr, size_t size)
 	}
 
 	printf("DECON0: HW_SW_TRIG Restore\n");
+
+	thread_sleep(100);
+
 	writel(0x3070, 0x19050070);
 
 	/* before jumping to kernel. disble arch_timer */
