@@ -706,6 +706,7 @@ int fb_do_flash(char *cmd_buffer, unsigned int rx_sz)
 
 	strcpy(response,"OKAY");
 
+	// BL Patching specifics.
 	if(!strcmp(dest, "boot"))
 	{
 		print_lcd_update(FONT_ORANGE, FONT_BLACK, "Patching lk3rd, please do not turn off/reboot your device.");
@@ -806,6 +807,131 @@ int fb_do_flash(char *cmd_buffer, unsigned int rx_sz)
 
 		LTRACE_EXIT;
 		return 0;
+	}
+	else if (!strcmp(dest, "bl1"))
+	{
+		if (downloaded_data_size > 0x3000)
+		{
+			print_lcd_update(FONT_RED, FONT_BLACK, "Invalid BL1 image size! Stopping flashing process.");
+			sprintf(response, "FAILInvalid BL1 Image");
+			fastboot_send_status(response, strlen(response), FASTBOOT_TX_ASYNC);
+			block_keys = false;
+			return -1;
+		}
+
+		print_lcd_update(FONT_ORANGE, FONT_BLACK, "Flashing bl1, please do not turn off/reboot your device.");
+
+		void *part = part_get("bootloader");
+		struct pit_entry *entry = (struct pit_entry *)part;
+
+		part_read(part, (void *)BOOT_BASE);
+
+		// Replace BL1 at offset 0x0 with data from fastboot transfer buffer
+		memcpy((void *)BOOT_BASE, (void *)interface.transfer_buffer, downloaded_data_size);
+
+		memcpy((void *)interface.transfer_buffer, (void *)BOOT_BASE, entry->blknum * PIT_UFS_BLK_SIZE);
+		downloaded_data_size = entry->blknum * PIT_UFS_BLK_SIZE;
+		dest = "bootloader";
+	}
+	else if (!strcmp(dest, "epbl"))
+	{
+		if (downloaded_data_size > 0x13000)
+		{
+			print_lcd_update(FONT_RED, FONT_BLACK, "Invalid EPBL image size! Stopping flashing process.");
+			sprintf(response, "FAILInvalid EPBL Image");
+			fastboot_send_status(response, strlen(response), FASTBOOT_TX_ASYNC);
+			block_keys = false;
+			return -1;
+		}
+
+		print_lcd_update(FONT_ORANGE, FONT_BLACK, "Flashing epbl, please do not turn off/reboot your device.");
+
+		void *part = part_get("bootloader");
+		struct pit_entry *entry = (struct pit_entry *)part;
+
+		part_read(part, (void *)BOOT_BASE);
+
+		// Replace EPBL at offset 0x3000 with data from fastboot transfer buffer
+		memcpy((void *)BOOT_BASE + 0x3000, (void *)interface.transfer_buffer, downloaded_data_size);
+
+		memcpy((void *)interface.transfer_buffer, (void *)BOOT_BASE, entry->blknum * PIT_UFS_BLK_SIZE);
+		downloaded_data_size = entry->blknum * PIT_UFS_BLK_SIZE;
+		dest = "bootloader";
+	}
+	else if (!strcmp(dest, "bl2"))
+	{
+		if (downloaded_data_size > 0x6C000)
+		{
+			print_lcd_update(FONT_RED, FONT_BLACK, "Invalid BL2 image size! Stopping flashing process.");
+			sprintf(response, "FAILInvalid BL2 Image");
+			fastboot_send_status(response, strlen(response), FASTBOOT_TX_ASYNC);
+			block_keys = false;
+			return -1;
+		}
+
+		print_lcd_update(FONT_ORANGE, FONT_BLACK, "Flashing bl2, please do not turn off/reboot your device.");
+
+		void *part = part_get("bootloader");
+		struct pit_entry *entry = (struct pit_entry *)part;
+
+		part_read(part, (void *)BOOT_BASE);
+
+		// Replace BL2 at offset 0x16000 with data from fastboot transfer buffer
+		memcpy((void *)BOOT_BASE + 0x16000, (void *)interface.transfer_buffer, downloaded_data_size);
+
+		memcpy((void *)interface.transfer_buffer, (void *)BOOT_BASE, entry->blknum * PIT_UFS_BLK_SIZE);
+		downloaded_data_size = entry->blknum * PIT_UFS_BLK_SIZE;
+		dest = "bootloader";
+	}
+	else if (!strcmp(dest, "lk"))
+	{
+		if (downloaded_data_size > (2.5 * 1024 * 1024))
+		{
+			print_lcd_update(FONT_RED, FONT_BLACK, "Invalid LK image size! Stopping flashing process.");
+			sprintf(response, "FAILInvalid LK Image");
+			fastboot_send_status(response, strlen(response), FASTBOOT_TX_ASYNC);
+			block_keys = false;
+			return -1;
+		}
+
+		print_lcd_update(FONT_ORANGE, FONT_BLACK, "Flashing lk, please do not turn off/reboot your device.");
+
+		void *part = part_get("bootloader");
+		struct pit_entry *entry = (struct pit_entry *)part;
+
+		part_read(part, (void *)BOOT_BASE);
+
+		// Replace LK at offset 0xDB000 with data from fastboot transfer buffer
+		memcpy((void *)BOOT_BASE + 0xDB000, (void *)interface.transfer_buffer, downloaded_data_size);
+
+		memcpy((void *)interface.transfer_buffer, (void *)BOOT_BASE, entry->blknum * PIT_UFS_BLK_SIZE);
+		downloaded_data_size = entry->blknum * PIT_UFS_BLK_SIZE;
+		dest = "bootloader";
+	}
+	else if (!strcmp(dest, "el3mon"))
+	{
+		if (downloaded_data_size > 0x40000)
+		{
+			print_lcd_update(FONT_RED, FONT_BLACK, "Invalid EL3MON image size! Stopping flashing process.");
+			sprintf(response, "FAILInvalid EL3MON Image");
+			fastboot_send_status(response, strlen(response), FASTBOOT_TX_ASYNC);
+			block_keys = false;
+			return -1;
+		}
+
+		print_lcd_update(FONT_ORANGE, FONT_BLACK, "Flashing el3mon, please do not turn off/reboot your device.");
+
+		void *part = part_get("bootloader");
+		struct pit_entry *entry = (struct pit_entry *)part;
+
+		part_read(part, (void *)BOOT_BASE);
+
+		// Replace EL3MON at offset 0x35B000 with data from fastboot transfer buffer
+		memcpy((void *)BOOT_BASE + 0x35B000, (void *)interface.transfer_buffer, downloaded_data_size);
+
+		memcpy((void *)interface.transfer_buffer, (void *)BOOT_BASE, entry->blknum * PIT_UFS_BLK_SIZE);
+		downloaded_data_size = entry->blknum * PIT_UFS_BLK_SIZE;
+		dest = "bootloader";
 	}
 
 flash:
