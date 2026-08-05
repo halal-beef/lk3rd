@@ -95,7 +95,7 @@ static int load_partition(u64 addr, u64 ch, u64 *size)
 	int OmPin = readl(EXYNOS9830_POWER_INFORM3);
 	int ret;
 	struct pit_entry *ptn;
-	char ch_name[][20] = { "ldfw", "keystorage", "ssp", "tzsw" };
+	char ch_name[][20] = { "ldfw", "keystorage", "ssp", "tzsw", "tzar"};
 
 	if (ch >= MAX_CH_NUM) {
 		LDFW_ERR("Invalid ch\n");
@@ -110,6 +110,8 @@ static int load_partition(u64 addr, u64 ch, u64 *size)
 		ptn = pit_get_part_info("tzsw");
 	} else if (ch == SSP_PART) {
 		ptn = pit_get_part_info("ssp");
+	} else if (ch == TZAR_PART) {
+		ptn = pit_get_part_info("tzar");
 	} else {
 		printf("Invalid ch\n");
 		return -1;
@@ -156,7 +158,7 @@ int init_keystorage(void)
 
 	if (is_usb_boot())
 		/* boot from iROM USB booting */
-		// return 1;
+		return 1;
 
 	if (load_partition(addr, KEYSTORAGE_PART, &size)) {
 		LDFW_ERR("keystorage: can not read keystorage from the storage\n");
@@ -273,6 +275,32 @@ int init_ldfws(void)
 	return 0;
 }
 
+static int start_sp(void)
+{
+	u64 ret = 0;
+	u64 addr = EXYNOS9830_LDFW_NWD_ADDR;
+	u64 size = 0x700000;
+
+	if (is_usb_boot())
+		return 0;
+
+	if (load_partition(addr, TZAR_PART, &size)) {
+		LDFW_ERR("spayload: can not read tzar from the storage\n");
+		return -1;
+	}
+
+	if (!size) {
+		LDFW_ERR("spayload: tzar partition size is not valid.\n");
+		return -1;
+	}
+
+	if ((ret = exynos_smc(0xB2000014, addr, 0x700000, 0))) {
+		LDFW_ERR("spayload: start sp, ret=%llx.\n", ret);
+		return -1;
+	}
+	return 0;
+}
+
 int init_sp(void)
 {
 	s64 ret = 0;
@@ -301,7 +329,14 @@ int init_sp(void)
 	if (ret == -1)
 		LDFW_INFO("spayload: It is dump_gpr state. It does not load spayload.\n");
 	else if (ret == 0)
+	{
 		LDFW_INFO("spayload: It is successfully loaded.\n");
+		LDFW_INFO("spayload: start sp.\n");
+		if (start_sp() != 0) {
+			LDFW_ERR("spayload: failed to start sp.\n");
+			while(1);
+		}
+	}
 	else
 		LDFW_INFO("spayload: [ERR] ret = [0x%llX]\n", ret);
 

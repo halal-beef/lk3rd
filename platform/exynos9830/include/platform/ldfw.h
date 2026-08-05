@@ -47,6 +47,7 @@ enum {
 	KEYSTORAGE_PART,
 	SSP_PART,
 	TZSW_PART,
+	TZAR_PART,
 	MAX_CH_NUM,
 };
 
