@@ -9,6 +9,7 @@
  */
 
 #include <lk/debug.h>
+#include <lk/reg.h>
 #include <sys/types.h>
 #include <platform/sfr.h>
 #include <platform/delay.h>
@@ -22,6 +23,9 @@ extern unsigned int board_rev;
 void pmic_init(void)
 {
 	unsigned char reg;
+
+	// Needed for speedy to work.
+	writel((readl(0x15860A00) & 0xffffc0fe) | 0x100, 0x15860A00);
 
 	speedy_init(CONFIG_SPEEDY0_BASE);
 	speedy_init(CONFIG_SPEEDY1_BASE);
