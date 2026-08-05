@@ -9,6 +9,7 @@
  */
 
 #include <lk/debug.h>
+#include <lk/reg.h>
 #include <sys/types.h>
 #include <platform/sfr.h>
 #include <platform/delay.h>
@@ -22,6 +23,12 @@ extern unsigned int board_rev;
 void pmic_init(void)
 {
 	unsigned char reg;
+
+	// Needed for speedy to work.
+	// PMU Debug register decides alot of clock stuff (contrary to its name)
+	// Clear selected clock CLKOUT0[13:8], enable CLKOUT0[0] and choose select TICCLK_MUX
+	// For CLKOUT0 (1 << 8) to be interpreted as 0b00_0001 for [13:8]. 
+	writel((readl(0x15860A00) & 0xffffc0fe) | 0x100, 0x15860A00);
 
 	speedy_init(CONFIG_SPEEDY0_BASE);
 	speedy_init(CONFIG_SPEEDY1_BASE);
