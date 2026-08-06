@@ -103,6 +103,9 @@ volatile bootloader_reserved_region bootloader_reserved_regions[] = {
 volatile int bootloader_reserved_region_count = sizeof(bootloader_reserved_regions) /
 										sizeof(bootloader_reserved_regions[0]);
 
+extern char tima_smc_handler[];
+extern char spi_handler[];
+
 #ifdef CONFIG_GET_B_REV_FROM_ADC
 int get_board_rev_adc(int *sh)
 {
@@ -583,6 +586,27 @@ void platform_init(void)
 		writel(0x1281, 0x19050070);
 by_dumpgpr_out:
 		print_el3_monitor_version();
+
+		printf("Register handler1\n");
+
+		if(exynos_smc(0xb2000102,0xb2000202,(u64)tima_smc_handler,0x98000801))
+		{
+			printf("Failed to register handler1!\n");
+			while(1);
+		}
+
+		printf("Register handler2\n");
+
+		if(exynos_smc(0xb2000102,0xb2000201,(u64)spi_handler,0x98000601))
+		{
+			printf("Failed to register handler2!\n");
+			while(1);
+		}
+		else
+		{
+			printf("Disable handler registration!\n");
+			exynos_smc(0xb2000104,0,0,0);
+		}
 	}
 
 	display_tmu_info();

@@ -13,6 +13,10 @@ MODULE_DEPS += \
 	lib/lk3rd \
 	lib/version
 
+# Samsung Proprietary Blobs
+MODULE_DEPS += \
+	lib/samsung_proprietary
+
 include make/module.mk
 
 
