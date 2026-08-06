@@ -609,12 +609,47 @@ void kaslr_warning(void)
 	print_lcd_update(FONT_WHITE, FONT_RED, empty_pad_string((warning_x + warning_width + 18) / FONT_X, "fastboot oem enable-kaslr"));
 }
 
+void get_random_kaslr_offset(u32 *offset)
+{
+	uint64_t ret = RV_SUCCESS;
+	uint64_t r0, r1, r2, r3;
+	u32 rand;
+
+	r0 = SMC_AARCH64_PREFIX | SMC_CM_RANDOM;
+	r1 = GET_RANDOM_WORD;
+	r2 = 0;
+	r3 = 0;
+
+	__asm__ volatile ("dsb	sy\n");
+	ret = exynos_smc(r0, r1, r2, r3);
+	if (ret != RV_SUCCESS) {
+		printf("failed to get random number");
+		print_lcd_update(FONT_RED, FONT_BLACK, "\n\n\nKASLR: Failed to get random number, device is not secure!\n\n\n");
+		r2 = 0;
+	}
+
+	rand = r2 & (0x40 - 1);
+	*offset = rand * 0x8000;
+}
+
+void init_kaslr(void)
+{
+	writel(0xcdefcdef, 0x80001000);
+
+	if(lk3rd_get_kaslr_status())
+		get_random_kaslr_offset(&kaslr_offset);
+	else
+		kaslr_offset = 0;
+
+	writel(kaslr_offset, 0x80001004);
+}
+
 int load_boot_images(void)
 {
 	struct pit_entry *ptn;
 	cmd_args argv[6];
-	int kaslr_status = lk3rd_get_kaslr_status();
-	kaslr_offset = readl(0x80001004);
+
+	init_kaslr();
 
 	if (readl(EXYNOS9830_POWER_SYSIP_DAT0) == REBOOT_MODE_RECOVERY || readl(EXYNOS9830_POWER_SYSIP_DAT0) == REBOOT_MODE_FACTORY) {
 		ptn = pit_get_part_info("recovery");
@@ -661,10 +696,7 @@ int load_boot_images(void)
 	}
 
 	argv[1].u = BOOT_BASE;
-	if(kaslr_status == 1)
-		argv[2].u = KERNEL_BASE + kaslr_offset;
-	else
-		argv[2].u = KERNEL_BASE;
+	argv[2].u = KERNEL_BASE + kaslr_offset;
 #if defined(CONFIG_RAMDISK_IN_BOOT)
 	argv[3].u = RAMDISK_BASE;
 #else
@@ -746,20 +778,10 @@ int cmd_boot(int argc, const cmd_args *argv)
 	clean_invalidate_dcache_all();
 	disable_mmu_dcache();
 
-	if(kaslr_status == 0)
-	{
-		// Turn off KASLR
-		writel(0, 0x80001004);
-	}
-
 	printf("Starting kernel...\n");
 	void (*kernel_entry)(int r0, int r1, int r2, int r3);
 
-	if(kaslr_status == 1)
-		kernel_entry = (void (*)(int, int, int, int))KERNEL_BASE + kaslr_offset;
-	else
-		kernel_entry = (void (*)(int, int, int, int))KERNEL_BASE;
-
+	kernel_entry = (void (*)(int, int, int, int))KERNEL_BASE + kaslr_offset;
 	kernel_entry(DT_BASE, 0, 0, 0);
 
 	return 0;
@@ -795,8 +817,9 @@ int boot_fb_boot(unsigned long buf_addr, size_t size)
 	cmd_args argv[7];
 	struct boot_img_hdr *b_hdr;
 	int kaslr_status = lk3rd_get_kaslr_status();
-	kaslr_offset = readl(0x80001004);
 
+	init_kaslr();
+	
 	memset((void *)BOOT_BASE, 0, SZ_64M);
 	memcpy((void *)BOOT_BASE, (void *)buf_addr, size);
 	b_hdr = (struct boot_img_hdr *)BOOT_BASE;
@@ -834,11 +857,7 @@ int boot_fb_boot(unsigned long buf_addr, size_t size)
 	memset((void *)RAMDISK_BASE, 0, 0x200000);
 
 	argv[1].u = BOOT_BASE;
-	if(kaslr_status == 1)
-		argv[2].u = KERNEL_BASE + kaslr_offset;
-	else
-		argv[2].u = KERNEL_BASE;
-
+	argv[2].u = KERNEL_BASE + kaslr_offset;
 	argv[3].u = RAMDISK_BASE;
 	argv[4].u = DT_BASE;
 	argv[5].u = 0x0;
@@ -904,20 +923,10 @@ int boot_fb_boot(unsigned long buf_addr, size_t size)
 	clean_invalidate_dcache_all();
 	disable_mmu_dcache();
 
-	if(kaslr_status == 0)
-	{
-		// Turn off KASLR
-		writel(0, 0x80001004);
-	}
-
 	printf("Starting kernel...\n");
 	void (*kernel_entry)(int r0, int r1, int r2, int r3);
 
-	if(kaslr_status == 1)
-		kernel_entry = (void (*)(int, int, int, int))KERNEL_BASE + kaslr_offset;
-	else
-		kernel_entry = (void(*)(int, int, int, int))KERNEL_BASE;
-
+	kernel_entry = (void (*)(int, int, int, int))KERNEL_BASE + kaslr_offset;
 	kernel_entry(DT_BASE, 0, 0, 0);
 
 	return 0;
