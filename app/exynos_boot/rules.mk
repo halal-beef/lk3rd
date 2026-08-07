@@ -3,6 +3,7 @@ MODULE := $(LOCAL_DIR)
 
 MODULE_DEPS += \
 	lib/libdeflate \
+	lib/sec_debug \
 
 MODULE_SRCS += \
 	$(LOCAL_DIR)/exynos_boot.c \

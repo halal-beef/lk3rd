@@ -47,6 +47,8 @@
 #include <lk3rd/kaslr_status.h>
 #include <lk3rd/mainline_quirks.h>
 
+#include <lib/sec_debug.h>
+
 #include <app/exynos_boot/cmd_boot.h>
 
 /* Memory node */
@@ -735,6 +737,7 @@ int cmd_boot(int argc, const cmd_args *argv)
 
 	configure_dtb();
 	configure_ddi_id();
+	sdn_init();
 
 	printf("scsi_do_ssu\n");
 	/*
@@ -880,6 +883,7 @@ int boot_fb_boot(unsigned long buf_addr, size_t size)
 
 	configure_dtb();
 	configure_ddi_id();
+	sdn_init();
 
 	printf("scsi_do_ssu\n");
 	/*
