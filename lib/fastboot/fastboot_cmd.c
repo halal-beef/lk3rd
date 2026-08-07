@@ -245,6 +245,7 @@ const char *oem_commands[] =
 	"disable-mainline-quirks",
 	"enable-kaslr",
 	"disable-kaslr",
+	"dump-lastkmsg"
 };
 
 enum oem_commands_id
@@ -255,6 +256,7 @@ enum oem_commands_id
 	OEM_DISABLE_MAINLINE_QUIRKS,
 	OEM_ENABLE_KASLR,
 	OEM_DISABLE_KASLR,
+	OEM_DUMP_LASTKMSG,
 	OEM_CMD_END,
 };
 
@@ -1227,6 +1229,17 @@ int fb_do_oem(char *cmd_buffer, unsigned int rx_sz)
 				sprintf(response, "OKAY");
 
 			notify_action_switch(0);
+			break;
+
+		case OEM_DUMP_LASTKMSG:
+			memcpy((void *)CFG_FASTBOOT_TRANSFER_BUFFER, (void *)0xFD910000, 0x200000);
+			download_size = 0x200000;
+
+			sprintf(response, "INFOLast KMSG Dumped. Please download via fastboot get_staged <filename>.");
+			fastboot_send_info(response, strlen(response));
+
+			sprintf(response, "OKAY");
+			fastboot_send_status(response, strlen(response), FASTBOOT_TX_ASYNC);
 			break;
 
 		default:
